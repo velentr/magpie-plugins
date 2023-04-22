@@ -92,9 +92,11 @@ pub trait CrdtPack<'a>: Deserialize<'a> + Serialize {
     fn sync() -> Result<(), failure::Error> {
         let vars = EnvVars::new()?;
 
+        log::trace!("loading local serialization");
         let mut local: Self = load_file(&vars)?;
 
         let cache_path = vars.remote_cache()?;
+        log::trace!("beginning rsync pull {}", &cache_path.display());
         // TODO: log the output instead of printing it
         let result = Command::new("rsync")
             .arg("--compress")
@@ -106,19 +108,24 @@ pub trait CrdtPack<'a>: Deserialize<'a> + Serialize {
         if !result.success() {
             return Err(format_err!("rsync pull failed: {}", result));
         }
+        log::trace!("rsync pull {} complete", &cache_path.display());
 
         // It's possible that the remote side does not yet exist, in which
         // case we can skip the merging.
         if cache_path.is_file() {
             let remote = from_file(&cache_path)?;
+            log::trace!("merging remote");
             local.merge(remote);
         }
 
+        log::trace!("unpacking local copies");
         CrdtPack::unpack(&vars, &local)?;
 
+        log::trace!("re-serializing crdts");
         to_file(&vars.crdt, &local)?;
         copy(&vars.crdt, &cache_path)?;
 
+        log::trace!("beginning rsync push {}", &cache_path.display());
         let result = Command::new("rsync")
             .arg("--compress")
             .arg("--verbose")
@@ -129,6 +136,7 @@ pub trait CrdtPack<'a>: Deserialize<'a> + Serialize {
         if !result.success() {
             return Err(format_err!("rsync push failed: {}", result));
         }
+        log::trace!("rsync push {} complete", &cache_path.display());
 
         Ok(())
     }
