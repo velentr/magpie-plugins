@@ -14,6 +14,8 @@ use failure::{format_err, Error};
 use serde::{Deserialize, Serialize};
 use xdg::BaseDirectories;
 
+pub mod library;
+
 pub struct EnvVars {
     pub appname: String,
     pub channel: String,

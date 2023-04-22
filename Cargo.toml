@@ -2,9 +2,27 @@
 #
 # SPDX-License-Identifier: GPL-3.0-only
 
-[workspace]
+[package]
+name = "magpie-plugins"
+version = "0.0.0"
+edition = "2021"
 
-members = [
-        "library",
-        "magpie",
-]
+[dependencies]
+ciborium = "0.2"
+env_logger = "0.9"
+failure = "0.1"
+log = "0.4"
+serde = "1"
+xdg = "2"
+
+[lib]
+name = "magpie"
+path = "src/lib.rs"
+
+[[bin]]
+name = "magpie-library-init"
+path = "src/library-init.rs"
+
+[[bin]]
+name = "magpie-library-sync"
+path = "src/library-sync.rs"

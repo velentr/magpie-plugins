@@ -10,8 +10,9 @@ use std::{
 
 use failure::{format_err, Error};
 use log::info;
-use magpie::{CrdtPack, EnvVars};
 use serde::{Deserialize, Serialize};
+
+use crate::{CrdtPack, EnvVars};
 
 #[derive(Deserialize, Serialize)]
 pub struct Library {
