@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::{
-    collections::BTreeSet,
+    collections::{HashMap, HashSet},
     fs::{metadata, read_dir, set_permissions, File},
     io::{Read, Write},
 };
@@ -16,13 +16,13 @@ use crate::{CrdtPack, EnvVars};
 
 #[derive(Deserialize, Serialize)]
 pub struct Library {
-    set: BTreeSet<(String, Vec<u8>)>,
+    set: HashMap<String, Vec<u8>>,
 }
 
 impl CrdtPack<'_> for Library {
     fn new() -> Library {
         Library {
-            set: BTreeSet::new(),
+            set: HashMap::new(),
         }
     }
 
@@ -40,7 +40,7 @@ impl CrdtPack<'_> for Library {
     }
 
     fn pack(vars: &EnvVars, pack: &mut Library) -> Result<(), Error> {
-        let mut files = BTreeSet::<String>::new();
+        let mut files = HashSet::<String>::new();
         for entry in read_dir(&vars.data)? {
             let entry = entry?;
             if !entry.file_type()?.is_file() {
@@ -57,7 +57,7 @@ impl CrdtPack<'_> for Library {
             .set
             .iter()
             .map(|(name, _data)| name.clone())
-            .collect::<BTreeSet<String>>();
+            .collect::<HashSet<String>>();
 
         for new_file in files.difference(&existing_files) {
             let filename = vars.data.join(new_file);
@@ -66,7 +66,7 @@ impl CrdtPack<'_> for Library {
             file.read_to_end(&mut buf)?;
 
             info!("adding {}", new_file);
-            pack.set.insert((new_file.clone(), buf));
+            pack.set.insert(new_file.clone(), buf);
 
             let mut perms = metadata(&filename)?.permissions();
             perms.set_readonly(true);
@@ -77,7 +77,11 @@ impl CrdtPack<'_> for Library {
     }
 
     fn merge(&mut self, other: Library) {
-        let mut other = other.set;
-        self.set.append(&mut other);
+        let other = other.set;
+        for (name, contents) in other.into_iter() {
+            if !self.set.contains_key(&name) {
+                self.set.insert(name, contents);
+            }
+        }
     }
 }
