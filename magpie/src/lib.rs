@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Brian Kubisiak <brian@kubisiak.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 use std::{
     env::current_dir,
     fs::{create_dir_all, File},
