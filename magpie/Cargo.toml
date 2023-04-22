@@ -1,0 +1,10 @@
+[package]
+name = "magpie"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+ciborium = "0.2"
+failure = "0.1"
+serde = "1"
+xdg = "2"
