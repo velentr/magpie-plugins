@@ -4,7 +4,7 @@
 
 use std::{
     env::current_dir,
-    fs::{create_dir_all, File},
+    fs::{copy, create_dir_all, File},
     path::{Path, PathBuf},
     process::Command,
 };
@@ -117,7 +117,7 @@ pub trait CrdtPack<'a>: Deserialize<'a> + Serialize {
         CrdtPack::unpack(&vars, &local)?;
 
         to_file(&vars.crdt, &local)?;
-        to_file(&cache_path, &local)?;
+        copy(&vars.crdt, &cache_path)?;
 
         let result = Command::new("rsync")
             .arg("--compress")
