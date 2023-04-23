@@ -11,12 +11,13 @@ use std::{
 use failure::{format_err, Error};
 use log::info;
 use serde::{Deserialize, Serialize};
+use serde_bytes::ByteBuf;
 
 use crate::{CrdtPack, EnvVars};
 
 #[derive(Deserialize, Serialize)]
 pub struct Library {
-    set: HashMap<String, Vec<u8>>,
+    set: HashMap<String, ByteBuf>,
 }
 
 impl CrdtPack<'_> for Library {
@@ -70,7 +71,7 @@ impl CrdtPack<'_> for Library {
             file.read_to_end(&mut buf)?;
 
             info!("adding {}", new_file);
-            pack.set.insert(new_file.clone(), buf);
+            pack.set.insert(new_file.clone(), ByteBuf::from(buf));
 
             let mut perms = metadata(&filename)?.permissions();
             perms.set_readonly(true);
