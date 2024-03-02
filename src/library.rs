@@ -58,11 +58,7 @@ impl CrdtPack for Library {
                     .map_err(|e| format_err!("invalid file: {}", e.to_string_lossy()))?,
             );
         }
-        let existing_files = pack
-            .set
-            .iter()
-            .map(|(name, _data)| name.clone())
-            .collect::<HashSet<String>>();
+        let existing_files = pack.set.keys().cloned().collect::<HashSet<String>>();
 
         for new_file in files.difference(&existing_files) {
             let filename = vars.data.join(new_file);
