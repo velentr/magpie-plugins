@@ -63,7 +63,7 @@ fn to_file<S: Serialize>(path: &Path, data: &S) -> Result<(), Error> {
 
 fn load_file<D: DeserializeOwned + CrdtPack>(vars: &EnvVars) -> Result<D, Error> {
     let mut data = from_file(&vars.crdt)?;
-    CrdtPack::pack(&vars, &mut data)?;
+    CrdtPack::pack(vars, &mut data)?;
 
     Ok(data)
 }

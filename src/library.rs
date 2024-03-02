@@ -29,14 +29,14 @@ impl CrdtPack for Library {
 
     fn unpack(vars: &EnvVars, pack: &Library) -> Result<(), Error> {
         for (filename, filedata) in pack.set.iter() {
-            let filepath = vars.data.join(&filename);
+            let filepath = vars.data.join(filename);
             if filepath.is_file() {
                 continue;
             }
 
             info!("unpacking {}", &filename);
             let mut file = File::create(&filepath)?;
-            file.write_all(&filedata)?;
+            file.write_all(filedata)?;
             let mut perms = metadata(&filepath)?.permissions();
             perms.set_readonly(true);
             set_permissions(&filepath, perms)?;
