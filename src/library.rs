@@ -80,9 +80,7 @@ impl CrdtPack for Library {
     fn merge(&mut self, other: Library) {
         let other = other.set;
         for (name, contents) in other.into_iter() {
-            if !self.set.contains_key(&name) {
-                self.set.insert(name, contents);
-            }
+            self.set.entry(name).or_insert(contents);
         }
     }
 }
