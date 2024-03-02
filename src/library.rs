@@ -20,7 +20,7 @@ pub struct Library {
     set: HashMap<String, ByteBuf>,
 }
 
-impl CrdtPack<'_> for Library {
+impl CrdtPack for Library {
     fn new() -> Library {
         Library {
             set: HashMap::new(),

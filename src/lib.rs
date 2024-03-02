@@ -11,7 +11,7 @@ use std::{
 
 use ciborium::{de::from_reader, ser::into_writer};
 use failure::{format_err, Error};
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Serialize};
 use xdg::BaseDirectories;
 
 pub mod library;
@@ -49,7 +49,7 @@ impl EnvVars {
     }
 }
 
-fn from_file<'a, D: Deserialize<'a>>(path: &Path) -> Result<D, Error> {
+fn from_file<D: DeserializeOwned>(path: &Path) -> Result<D, Error> {
     let buf = File::open(path)?;
     let data: D = from_reader(buf)?;
     Ok(data)
@@ -61,14 +61,14 @@ fn to_file<S: Serialize>(path: &Path, data: &S) -> Result<(), Error> {
     Ok(())
 }
 
-fn load_file<'a, D: Deserialize<'a> + CrdtPack<'a>>(vars: &EnvVars) -> Result<D, Error> {
+fn load_file<D: DeserializeOwned + CrdtPack>(vars: &EnvVars) -> Result<D, Error> {
     let mut data = from_file(&vars.crdt)?;
     CrdtPack::pack(&vars, &mut data)?;
 
     Ok(data)
 }
 
-pub trait CrdtPack<'a>: Deserialize<'a> + Serialize {
+pub trait CrdtPack: DeserializeOwned + Serialize {
     fn new() -> Self;
     fn unpack(vars: &EnvVars, pack: &Self) -> Result<(), Error>;
     fn pack(vars: &EnvVars, pack: &mut Self) -> Result<(), Error>;
